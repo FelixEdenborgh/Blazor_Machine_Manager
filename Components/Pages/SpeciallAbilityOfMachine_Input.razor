@@ -34,7 +34,7 @@ else
     [Parameter]
     public Guid Id { get; set; }
 
-    private Machine machine;
+    private Machine? machine;
 
     protected override async Task OnInitializedAsync()
     {
