@@ -1,0 +1,57 @@
+﻿@page "/test-input"
+@using Blazor_Machine_Manager.Models
+@using Blazor_Machine_Manager.Data
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+
+@rendermode InteractiveServer
+
+<h3>Test Input</h3>
+
+<EditForm Model="machine" OnValidSubmit="HandleValidSubmit" FormName="testInputForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="name">Name</label>
+        <InputText id="name" class="form-control" @bind-Value="machine.Name" />
+        <ValidationMessage For="@(() => machine.Name)" />
+    </div>
+
+    <div class="form-group">
+        <label for="isOnline">Is Online</label>
+        <InputCheckbox id="isOnline" @bind-Value="machine.IsOnline" />
+        <ValidationMessage For="@(() => machine.IsOnline)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+<p>Input value: @machine.Name</p>
+<p>Is Online: @machine.IsOnline</p>
+
+@code {
+    private Machine machine = new Machine();
+
+    private async Task HandleValidSubmit()
+    {
+        machine.Id = Guid.NewGuid();
+        machine.LastUpdated = DateTime.Now;
+
+        // Lägg till loggning
+        Console.WriteLine($"Machine Name: '{machine.Name}'");
+        Console.WriteLine($"Is Online: {machine.IsOnline}");
+
+        try
+        {
+            DbContext.Machines.Add(machine);
+            await DbContext.SaveChangesAsync();
+            Console.WriteLine("Machine saved successfully");
+            Navigation.NavigateTo("/machines");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving machine: {ex.Message}");
+        }
+    }
+}

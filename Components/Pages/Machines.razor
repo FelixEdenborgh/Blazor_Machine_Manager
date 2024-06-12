@@ -1,0 +1,69 @@
+﻿@page "/machines"
+@using Blazor_Machine_Manager.Data
+@using Blazor_Machine_Manager.Models
+@using Microsoft.EntityFrameworkCore
+@using System.Diagnostics
+@inject ApplicationDbContext DbContext
+
+<h3>Machines</h3>
+
+<button @onclick="LoadMachines" class="btn btn-primary">Refresh</button>
+
+@if (machines == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Is Online</th>
+                <th>LastUpdated</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var machine in machines)
+            {
+                <tr>
+                    <td>@machine.Id</td>
+                    <td>@machine.Name</td>
+                    <td>@machine.IsOnline</td>
+                    <td>@machine.LastUpdated</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+}
+
+@code {
+    private List<Machine> machines;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Debug.WriteLine("OnInitializedAsync called");
+        await LoadMachines();
+    }
+
+    private async Task LoadMachines()
+    {
+        try
+        {
+            Debug.WriteLine("LoadMachines method called");
+            await InvokeAsync(async () =>
+            {
+                machines = await DbContext.Machines.ToListAsync();
+                Debug.WriteLine($"Loaded {machines.Count} machines from the database");
+                StateHasChanged();
+            });
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading machines: {ex.Message}");
+        }
+    }
+}
