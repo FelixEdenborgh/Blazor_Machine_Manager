@@ -1,0 +1,60 @@
+﻿@page "/remove-machines"
+@using Blazor_Machine_Manager.Data
+@using Blazor_Machine_Manager.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+
+@* Denna behövs altid annars fungerar inte componenten *@
+@rendermode InteractiveServer
+
+<h3>Manage Machines</h3>
+
+@if (machines == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Is Online</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var machine in machines)
+            {
+                <tr>
+                    <td>@machine.Name</td>
+                    <td>@machine.IsOnline</td>
+                    <td>
+                        <button @onclick="() => DeleteMachine(machine.Id)" class="btn btn-danger">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Machine> machines;
+
+    protected override async Task OnInitializedAsync()
+    {
+        machines = await DbContext.Machines.ToListAsync();
+    }
+
+    private async Task DeleteMachine(Guid id)
+    {
+        var machine = await DbContext.Machines.FindAsync(id);
+        if (machine != null)
+        {
+            DbContext.Machines.Remove(machine);
+            await DbContext.SaveChangesAsync();
+            machines = await DbContext.Machines.ToListAsync(); // Uppdatera listan efter borttagning
+        }
+    }
+}

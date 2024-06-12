@@ -1,0 +1,61 @@
+﻿@page "/isonline-machines"
+@using Blazor_Machine_Manager.Data
+@using Blazor_Machine_Manager.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+
+@* Denna behövs altid annars fungerar inte componenten *@
+@rendermode InteractiveServer
+
+<h3>Manage Machines</h3>
+
+@if (machines == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Is Online</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var machine in machines)
+            {
+                <tr>
+                    <td>@machine.Name</td>
+                    <td>@machine.IsOnline</td>
+                    <td>
+                        <button @onclick="() => ToggleIsOnline(machine.Id)" class="btn btn-secondary">On/Off</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Machine> machines;
+
+    protected override async Task OnInitializedAsync()
+    {
+        machines = await DbContext.Machines.ToListAsync();
+    }
+
+    private async Task ToggleIsOnline(Guid id)
+    {
+        var machine = await DbContext.Machines.FindAsync(id);
+        if (machine != null)
+        {
+            machine.IsOnline = !machine.IsOnline;
+            await DbContext.SaveChangesAsync();
+            // Uppdatera listan efter ändring
+            machines = await DbContext.Machines.ToListAsync();
+        }
+    }
+}
