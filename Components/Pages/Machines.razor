@@ -21,7 +21,8 @@ else
                 <th>Id</th>
                 <th>Name</th>
                 <th>Is Online</th>
-                <th>LastUpdated</th>
+                <th>Last Updated</th>
+                <th>Special Ability Of The Machine</th>
             </tr>
         </thead>
         <tbody>
@@ -32,23 +33,60 @@ else
                     <td>@machine.Name</td>
                     <td>@machine.IsOnline</td>
                     <td>@machine.LastUpdated</td>
+                    <td>@machine.SpecialAbilityOfMachine</td>
                 </tr>
             }
         </tbody>
     </table>
 
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Summary</h4>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Totalt Antal Maskiner</th>
+                        <th>Antal Maskiner som är online</th>
+                        <th>Antal Maskiner som har en special ability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>@totalMachines</td>
+                        <td>@onlineMachines</td>
+                        <td>@specialAbilityMachines</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 }
 
 @code {
+    // Table
     private List<Machine> machines;
+
+    // Card
+    private int totalMachines;
+    private int onlineMachines;
+    private int specialAbilityMachines;
 
     protected override async Task OnInitializedAsync()
     {
+        // Table
         Debug.WriteLine("OnInitializedAsync called");
         await LoadMachines();
-    }
 
+        // Card
+        machines = await DbContext.Machines.ToListAsync();
+        totalMachines = machines.Count;
+        onlineMachines = machines.Count(m => m.IsOnline == true);
+        specialAbilityMachines = machines.Count(m => !string.IsNullOrEmpty(m.SpecialAbilityOfMachine));
+    }
+    // Table
     private async Task LoadMachines()
     {
         try

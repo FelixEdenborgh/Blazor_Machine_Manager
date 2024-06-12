@@ -1,0 +1,57 @@
+﻿@page "/specialabilityinput-machine/{Id:guid}"
+@using Blazor_Machine_Manager.Data
+@using Blazor_Machine_Manager.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+
+@rendermode InteractiveServer
+
+<h3>Edit Special Ability</h3>
+
+@if (machine == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <EditForm Model="machine" OnValidSubmit="HandleValidSubmit" FormName="editAbilityForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="SpecialAbilityOfMachine">Special Ability</label>
+            <InputText id="SpecialAbilityOfMachine" class="form-control" @bind-Value="machine.SpecialAbilityOfMachine" />
+            <ValidationMessage For="@(() => machine.SpecialAbilityOfMachine)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button @onclick="CancelEdit" class="btn btn-secondary">Cancel</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private Machine machine;
+
+    protected override async Task OnInitializedAsync()
+    {
+        machine = await DbContext.Machines.FindAsync(Id);
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (machine != null)
+        {
+            await DbContext.SaveChangesAsync();
+            Navigation.NavigateTo("/specialability-machines");
+        }
+    }
+
+    private void CancelEdit()
+    {
+        Navigation.NavigateTo("/specialability-machines");
+    }
+}

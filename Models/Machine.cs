@@ -13,5 +13,7 @@ namespace Blazor_Machine_Manager.Models
         public bool IsOnline { get; set; } = false;
 
         public DateTime LastUpdated { get; set; } = DateTime.Now;
+
+        public string SpecialAbilityOfMachine { get; set; } = string.Empty;
     }
 }
