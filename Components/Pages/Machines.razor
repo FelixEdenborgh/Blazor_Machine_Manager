@@ -4,6 +4,10 @@
 @using Microsoft.EntityFrameworkCore
 @using System.Diagnostics
 @inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+
+@* Denna behövs altid annars fungerar inte componenten *@
+@rendermode InteractiveServer
 
 <h3>Machines</h3>
 
@@ -34,6 +38,11 @@ else
                     <td>@machine.IsOnline</td>
                     <td>@machine.LastUpdated</td>
                     <td>@machine.SpecialAbilityOfMachine</td>
+                    <td>
+                        <button @onclick="() => ToggleIsOnline(machine.Id)" class="btn btn-secondary">On/Off</button>
+                        <button @onclick="() => DeleteMachine(machine.Id)" class="btn btn-danger">Delete</button>
+                        <button @onclick="() => ChangeAbility(machine.Id)" class="btn btn-primary">Update</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -103,5 +112,35 @@ else
         {
             Debug.WriteLine($"Error loading machines: {ex.Message}");
         }
+    }
+
+    private async Task ToggleIsOnline(Guid id)
+    {
+        var machine = await DbContext.Machines.FindAsync(id);
+        if (machine != null)
+        {
+            machine.IsOnline = !machine.IsOnline;
+            await DbContext.SaveChangesAsync();
+            // Uppdatera listan efter ändring
+            machines = await DbContext.Machines.ToListAsync();
+            OnInitializedAsync();
+        }
+    }
+
+    private async Task DeleteMachine(Guid id)
+    {
+        var machine = await DbContext.Machines.FindAsync(id);
+        if (machine != null)
+        {
+            DbContext.Machines.Remove(machine);
+            await DbContext.SaveChangesAsync();
+            machines = await DbContext.Machines.ToListAsync(); // Uppdatera listan efter borttagning
+            OnInitializedAsync();
+        }
+    }
+
+    private void ChangeAbility(Guid id)
+    {
+        Navigation.NavigateTo($"/specialabilityinput-machine/{id}");
     }
 }
