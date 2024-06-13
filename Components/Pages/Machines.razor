@@ -11,7 +11,8 @@
 
 <h3>Machines</h3>
 
-<button @onclick="LoadMachines" class="btn btn-primary">Refresh</button>
+@* <button @onclick="LoadMachines" class="btn btn-primary">Refresh</button> *@
+<button @onclick="Add" class="btn btn-primary">Add New Machine</button>
 
 @if (machines == null)
 {
@@ -39,6 +40,7 @@ else
                     <td>@machine.LastUpdated</td>
                     <td>@machine.SpecialAbilityOfMachine</td>
                     <td>
+                        <button @onclick="LoadMachines" class="btn btn-primary">Refresh</button>
                         <button @onclick="() => ToggleIsOnline(machine.Id)" class="btn btn-secondary">On/Off</button>
                         <button @onclick="() => DeleteMachine(machine.Id)" class="btn btn-danger">Delete</button>
                         <button @onclick="() => ChangeAbility(machine.Id)" class="btn btn-primary">Update</button>
@@ -142,5 +144,10 @@ else
     private void ChangeAbility(Guid id)
     {
         Navigation.NavigateTo($"/specialabilityinput-machine/{id}");
+    }
+
+    private void Add()
+    {
+        Navigation.NavigateTo("/add-machine");
     }
 }
